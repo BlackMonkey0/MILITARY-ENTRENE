@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interfaz táctica de crecimiento físico con IA para entrenamiento y nutrición.">
+    <title>MILITARY_OS v2.0 // HYPER_GROWTH</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="https://unpkg.com/lucide@latest"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <nav role="navigation">
+        <div class="nav-header">> MILITARY_OS_v2 - <span id="nav-rank">RECLUTA</span></div>
+        <ul class="nav-links">
+            <li class="active" onclick="switchPage('dashboard', this)" aria-label="Ver dashboard"><i data-lucide="activity"></i> DASHBOARD</li>
+            <li onclick="switchPage('training', this)" aria-label="Registro de entrenamiento"><i data-lucide="dumbbell"></i> ENTRENAMIENTO</li>
+            <li onclick="switchPage('nutrition', this)" aria-label="Control nutricional"><i data-lucide="utensils"></i> NUTRICIÓN</li>
+            <li onclick="switchPage('progress', this)" aria-label="Ver progreso"><i data-lucide="line-chart"></i> PROGRESO</li>
+        </ul>
+        <div class="nav-footer">
+            SOLDADO: <span id="user-weight">56KG</span> / <span id="user-height">170CM</span><br>
+            OBJ: <span id="user-cal">2800 KCAL</span>
+        </div>
+    </nav>
+
+    <main role="main">
+        <section id="dashboard" class="page-section active">
+            <h1>> ESTADO_DE_CRECIMIENTO</h1>
+            <div class="grid">
+                <div class="card">
+    <span class="label">ESTADO_BIOQUÍMICO</span>
+    <div class="bio-status">
+        <div>
+            <span class="small-label">GLUCÓGENO_MUSCULAR</span>
+            <div class="progress-container progress-small"><div id="glyco-bar" class="progress-bar"></div></div>
+        </div>
+        <div>
+            <span class="small-label">HIDRATACIÓN_SISTEMA</span>
+            <div class="progress-container progress-small"><div id="hydro-bar" class="progress-bar bar-water"></div></div>
+        </div>
+        <div class="water-count">AGUA: <span id="dash-water">0ML</span></div>
+        <button class="btn small-btn" onclick="drinkWater()">+ BEBER AGUA (250ML)</button>
+    </div>
+</div>
+
+<div class="card" id="mission-card">
+    <span class="label">ORDEN_DEL_DÍA</span>
+    <div class="mission-box">
+        <div id="mission-name" class="mission-title">OPERACIÓN: RESISTENCIA</div>
+        <div id="mission-task" class="mission-task">OBJETIVO: 100 REPS TOTALES</div>
+        <div id="mission-status" class="mission-status-text">PENDIENTE...</div>
+    </div>
+</div>
+                <div class="card">
+                    <span class="label">ESTADO_FÍSICO</span>
+                    <div id="body-summary" style="margin-top:10px;font-size:0.8rem; color:#fff;"></div>
+                </div>
+                <div class="card">
+                    <span class="label">CONFIGURAR OBJETIVOS</span>
+                    <input type="number" id="input-goal-cal" class="btn" placeholder="KCAL Objetivo">
+                    <input type="number" id="input-goal-prot" class="btn" placeholder="Proteína g">
+                    <input type="number" id="input-goal-ch" class="btn" placeholder="Carbos g">
+                    <input type="number" id="input-goal-fat" class="btn" placeholder="Grasas g">
+                    <input type="number" id="input-mission-goal" class="btn" placeholder="Reps Misión">
+                    <button class="btn" onclick="saveSettings()">GUARDAR</button>
+                </div>
+                <!-- ranking card inserted -->
+                <div class="card">
+                    <span class="label">RANGO ACTUAL</span>
+                    <div class="value" id="dash-rank">RECLUTA</div>
+                </div>
+                <div class="card">
+                    <span class="label">EXPORTAR DATOS</span>
+                    <button class="btn" onclick="downloadData()">DESCARGAR JSON</button>
+                </div>
+                <div class="card">
+                    <span class="label">CALORÍAS (OBJETIVO SUPERÁVIT)</span>
+                    <div class="value"><span id="dash-cal">0</span> <small class="small">/ 2800</small></div>
+                    <div class="progress-container"><div id="cal-bar" class="progress-bar"></div></div>
+                    <div id="ia-status-cal" class="ia-status">ANALIZANDO INGESTA...</div>
+                </div>
+                <div class="card">
+                    <span class="label">PROTEÍNA (HIPERTROFIA)</span>
+                    <div class="value"><span id="dash-prot">0</span> <small class="small">/ 112G</small></div>
+                    <div class="progress-container"><div id="prot-bar" class="progress-bar bar-prot"></div></div>
+                </div>
+                <div class="card">
+                    <span class="label">CARBOHIDRATOS (ENERGÍA)</span>
+                    <div class="value"><span id="dash-ch">0</span> <small class="small">/ 395G</small></div>
+                    <div class="progress-container"><div id="ch-bar" class="progress-bar bar-ch"></div></div>
+                </div>
+            </div>
+            
+            <div class="ia-console" id="ia-log">> INICIALIZANDO PROTOCOLO DE VOLUMEN LIMPIO...</div>
+        </section>
+
+        <section id="training" class="page-section">
+            <h1>> REGISTRO_TÁCTICO</h1>
+            <div class="grid">
+                <div class="card">
+                    <span class="label">EJERCICIO</span>
+                    <select id="ex-type" class="btn">
+                        <option value="FLEXIONES">FLEXIONES (PECHO)</option>
+                        <option value="DOMINADAS">DOMINADAS (ESPALDA)</option>
+                        <option value="SENTADILLAS">SENTADILLAS (PIERNA)</option>
+                    </select>
+                    <input type="number" id="ex-qty" class="btn" value="10" placeholder="REPS">
+                    <button class="btn" onclick="registerExercise()">AÑADIR SET</button>
+                </div>
+                <div class="card">
+                    <span class="label">VOLUMEN_HOY</span>
+                    <div class="value" id="dash-reps">0</div>
+                    <div id="training-list" class="training-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="nutrition" class="page-section">
+            <h1>> ESCÁNER_DE_MACROS</h1>
+            <div class="grid">
+                <div class="card">
+                    <span class="label">VISIÓN_ARTIFICIAL</span>
+                    <div class="visual-placeholder">
+                        <i data-lucide="maximize" size="40"></i>
+                    </div>
+                    <button class="btn" onclick="simulateOCR()">SIMULAR ESCANEO</button>
+                </div>
+                <div class="card">
+                    <span class="label">RESULTADO_DETECCIÓN</span>
+                    <p>PROT: <span id="ocr-p">0</span>g | CH: <span id="ocr-ch">0</span>g</p>
+                    <div class="value" id="ocr-cal">0 <small class="small">KCAL</small></div>
+                    <button class="btn" onclick="addFood()">CONFIRMAR INGESTA</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="progress" class="page-section">
+            <h1>> ANÁLISIS_DE_PROGRESIÓN</h1>
+            <div class="card card-fullwidth">
+                <span class="label">SOBRECARGA_PROGRESIVA_SEMANAL</span>
+                <canvas id="repsChart"></canvas>
+            </div>
+            <div class="card card-fullwidth">
+                <span class="label">INGESTA vs CALORÍAS DIARIAS</span>
+                <canvas id="nutritionChart"></canvas>
+            </div>
+            <div class="card card-fullwidth">
+                <span class="label">COMPOSICIÓN CORPORAL</span>
+                <canvas id="bodyChart"></canvas>
+            </div>
+            <div class="card">
+                <span class="label">ACTUALIZAR ESTADO FÍSICO</span>
+                <input type="number" id="input-weight" class="btn" placeholder="Peso (kg)">
+                <input type="number" id="input-bmi" class="btn" placeholder="BMI">
+                <input type="number" id="input-fat" class="btn" placeholder="Grasa corporal %">
+                <input type="number" id="input-water" class="btn" placeholder="Agua corporal %">
+                <input type="number" id="input-muscle" class="btn" placeholder="Masa muscular %">
+                <input type="number" id="input-bone" class="btn" placeholder="Masa ósea %">
+                <button class="btn" onclick="updateBodyStats()">GUARDAR ESTADO</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</body>
+</html>
