@@ -39,13 +39,9 @@ const State = {
     }
 };
 
-const API = {
-    status: '/api/status',
-    state: '/api/state',
-    exercise: '/api/exercise',
-    food: '/api/food',
-    water: '/api/water'
-};
+// No backend API is used in the static-only version of the project.
+// All network-related code has been removed or disabled.
+const API = { enabled: false }; // placeholder
 
 const IAMilitary = {
     messages: {
@@ -98,8 +94,7 @@ function drinkWater() {
     logToConsole(`HIDRATACIÓN: +250ML REGISTRADOS. TOTAL: ${State.daily.water}ML`);
     saveToDisk();
     renderUI();
-    // enviar al servidor
-    fetch(API.water, { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({water:250, total:State.daily.water}) });
+    // sin backend en modo estático
 }
 
 function updateBodyStats() {
@@ -116,8 +111,7 @@ function updateBodyStats() {
     saveToDisk();
     renderBodyChart();
     logToConsole('Estado físico actualizado.');
-    // optional sync
-    fetch('/api/state', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({bodyStats: State.bodyStats}) });
+    // sin backend en modo estático
 }
 
 function saveSettings() {
@@ -182,8 +176,7 @@ function registerExercise() {
     saveToDisk();
     renderUI();
 
-    // sync with backend
-    fetch(API.exercise, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(entry) });
+    // sin backend en modo estático
 }
 
 function addFood() {
@@ -209,7 +202,7 @@ function addFood() {
     saveToDisk();
     renderUI();
 
-    fetch(API.food, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(added) });
+    // sin backend en modo estático
 }
 
 // --- MOTOR DE RENDERIZADO (REDISEÑADO) ---
@@ -429,47 +422,10 @@ function logToConsole(msg) {
     }
 }
 
-async function fetchStatus() {
-    try {
-        const res = await fetch(API.status);
-        if (!res.ok) throw new Error('network');
-        const data = await res.json();
-        logToConsole(`API: ${data.status}, IA_LEVEL: ${data.ia_level}`);
-    } catch (e) {
-        logToConsole('ERROR: No se pudo conectar con el servidor.');
-    }
-}
-
-async function syncFromServer() {
-    try {
-        const res = await fetch(API.state);
-        if (!res.ok) throw new Error('network');
-        const data = await res.json();
-        logToConsole('Sincronización con servidor completada.');
-        console.debug('Server state:', data);
-        // si hay datos remotos mantenemos los totales más altos
-        if (data) {
-            State.daily.reps = Math.max(State.daily.reps, data.reps || 0);
-            State.daily.calories = Math.max(State.daily.calories, data.calories || 0);
-            State.daily.protein = Math.max(State.daily.protein, data.protein || 0);
-            State.daily.carbs = Math.max(State.daily.carbs, data.carbs || 0);
-            State.daily.water = Math.max(State.daily.water, data.water || 0);
-            if (Array.isArray(data.history)) {
-                // concatenar historiales sin duplicados simples
-                State.daily.history = [...new Map([...State.daily.history, ...data.history].map(v=>[v.id,v])).values()];
-            }
-            renderUI();
-        }
-    } catch (e) {
-        logToConsole('No se pudo recuperar estado remoto.');
-    }
-}
 
 // ARRANQUE
 window.addEventListener('load', () => {
     loadFromDisk();
     renderUI();
-    fetchStatus();
-    syncFromServer();
     logToConsole("SISTEMA MILITARY_OS v2.5 ONLINE.");
 });
